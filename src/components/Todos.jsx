@@ -8,6 +8,8 @@ function Todos() {
   const [editTodo, setEditTodo] = useState(null)
   const [search, setSearch] = useState("")
   const [filteredTodos, setFilteredTodos] = useState(todos);
+  const [filtertype, setFiltertype] = useState("all")
+
 
 
   const handleOnChange = (e) => {
@@ -23,7 +25,7 @@ function Todos() {
             setTodos(updatedTodos);
             setEditTodo(null);
             toast.success("Todo updated successfully");
-          } else {
+          } else{
           const newTodo = [...todos, todo];
           setTodos(newTodo);
           toast.success("Todo added successfully");
@@ -31,14 +33,20 @@ function Todos() {
         }
       }
 
-
-      useEffect(() => {
-        localStorage.setItem('todo', JSON.stringify(todos));
-        const filtered = todos.filter(todo =>
-          todo.title.toLowerCase().includes(search.toLowerCase())
+      const filterTodos = () => {
+        const filtered = todos.filter(todo => 
+          todo.title.toLowerCase().includes(search.toLowerCase()) &&
+          (filtertype === 'all' || (filtertype === 'completed' && todo.completed) || (filtertype === 'pending' && !todo.completed))
         );
         setFilteredTodos(filtered);
-      }, [todos, search]);
+      };
+      
+      useEffect(() => {
+        localStorage.setItem('todo', JSON.stringify(todos));
+        filterTodos();
+      }, [todos, search, filtertype]);
+    
+      
 
   const handleDelete =(index)=>{
     const updateTodo = todos.filter((_,i) =>i !==index)
@@ -61,6 +69,11 @@ function Todos() {
 
   const handleSearch =(e)=>{
     setSearch(e.target.value)
+  }
+
+  const handleFilterChange =(filter)=>{
+    setFiltertype(filter)
+    console.log('filter :>> ', filter);
   }
 
   return (
@@ -106,7 +119,17 @@ function Todos() {
         </form>
       </div>
 
-
+ <div className="filter-buttons">
+        <button className='todo-button' onClick={() => handleFilterChange('all')}>
+          All Todos
+        </button>
+        <button className='todo-button' onClick={() => handleFilterChange('pending')}>
+          Pending Todos
+        </button>
+        <button className='todo-button' onClick={() => handleFilterChange('completed')}>
+          Completed Todos
+        </button>
+      </div>
   <table className="table table-striped">
   <thead>
     <tr>
@@ -117,10 +140,10 @@ function Todos() {
                 onChange={handleSearch}
                 placeholder="Search by title"
                 /></th>
-      <th scope="col">Description</th>
-      <th scope="col">Date</th>
-      <th scope="col">Action</th>
-    </tr>
+                    <th scope="col">Description</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Action</th>
+                  </tr>
   </thead>
   <tbody>
     {filteredTodos.map((item, index) => (
