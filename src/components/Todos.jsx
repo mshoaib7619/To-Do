@@ -6,6 +6,9 @@ function Todos() {
   const [todo, setTodo] = useState({ title: "", description: "", date: "" });
   const [todos, setTodos] = useState(JSON.parse(localStorage.getItem('todo')) || []);
   const [editTodo, setEditTodo] = useState(null)
+  const [search, setSearch] = useState("")
+  const [filteredTodos, setFilteredTodos] = useState(todos);
+
 
   const handleOnChange = (e) => {
     setTodo({ ...todo, [e.target.name]: e.target.value });
@@ -13,15 +16,14 @@ function Todos() {
 
   const handleSubmit = (e) => {
         e.preventDefault();
-        if(editTodo !== null){
-          const updateTodo = todos.map((t,index)=>{
-            index === editTodo ? todo : t
-          })
-          setTodo(updateTodo)
-          setEditTodo(null)
-          toast.success("Todo Update successfully")
-
-        }else{
+          if (editTodo !== null) {
+            const updatedTodos = todos.map((t, index) => (
+              index === editTodo ? { ...todo } : t
+            ));
+            setTodos(updatedTodos);
+            setEditTodo(null);
+            toast.success("Todo updated successfully");
+          } else {
           const newTodo = [...todos, todo];
           setTodos(newTodo);
           toast.success("Todo added successfully");
@@ -30,9 +32,13 @@ function Todos() {
       }
 
 
-  useEffect(() => {
-    localStorage.setItem('todo', JSON.stringify(todos));}, [todos]
-  );
+      useEffect(() => {
+        localStorage.setItem('todo', JSON.stringify(todos));
+        const filtered = todos.filter(todo =>
+          todo.title.toLowerCase().includes(search.toLowerCase())
+        );
+        setFilteredTodos(filtered);
+      }, [todos, search]);
 
   const handleDelete =(index)=>{
     const updateTodo = todos.filter((_,i) =>i !==index)
@@ -51,9 +57,11 @@ function Todos() {
     );
     setTodos(updatedTodos);
     toast.success(`Todo marked as ${updatedTodos[index].completed ? 'Complete' : 'Incomplete'}`);
-    
   }
 
+  const handleSearch =(e)=>{
+    setSearch(e.target.value)
+  }
 
   return (
     <>
@@ -99,18 +107,23 @@ function Todos() {
       </div>
 
 
-      <table className="table table-striped">
+  <table className="table table-striped">
   <thead>
     <tr>
       <th scope="col">Sr.No</th>
-      <th scope="col">Title</th>
+      <th scope="col">Title:  <input
+                type="text"
+                value={search}
+                onChange={handleSearch}
+                placeholder="Search by title"
+                /></th>
       <th scope="col">Description</th>
       <th scope="col">Date</th>
       <th scope="col">Action</th>
     </tr>
   </thead>
   <tbody>
-    {todos.map((item, index) => (
+    {filteredTodos.map((item, index) => (
       <tr key={index} className={item.completed ? 'completed' : ''}>
         <th scope="row">{index + 1}</th>
         <td>{item.title}</td>
