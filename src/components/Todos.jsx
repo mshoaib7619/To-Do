@@ -6,11 +6,6 @@ function Todos() {
   const [todo, setTodo] = useState({ title: "", description: "", date: "" });
   const [todos, setTodos] = useState(JSON.parse(localStorage.getItem('todo')) || []);
   const [editTodo, setEditTodo] = useState(null)
-  const [search, setSearch] = useState("")
-  const [filteredTodos, setFilteredTodos] = useState(todos);
-  const [filtertype, setFiltertype] = useState("all")
-
-
 
   const handleOnChange = (e) => {
     setTodo({ ...todo, [e.target.name]: e.target.value });
@@ -18,14 +13,15 @@ function Todos() {
 
   const handleSubmit = (e) => {
         e.preventDefault();
-          if (editTodo !== null) {
-            const updatedTodos = todos.map((t, index) => (
-              index === editTodo ? { ...todo } : t
-            ));
-            setTodos(updatedTodos);
-            setEditTodo(null);
-            toast.success("Todo updated successfully");
-          } else{
+        if(editTodo !== null){
+          const updateTodo = todos.map((t,index)=>{
+            index === editTodo ? todo : t
+          })
+          setTodo(updateTodo)
+          setEditTodo(null)
+          toast.success("Todo Update successfully")
+
+        }else{
           const newTodo = [...todos, todo];
           setTodos(newTodo);
           toast.success("Todo added successfully");
@@ -33,20 +29,10 @@ function Todos() {
         }
       }
 
-      const filterTodos = () => {
-        const filtered = todos.filter(todo => 
-          todo.title.toLowerCase().includes(search.toLowerCase()) &&
-          (filtertype === 'all' || (filtertype === 'completed' && todo.completed) || (filtertype === 'pending' && !todo.completed))
-        );
-        setFilteredTodos(filtered);
-      };
-      
-      useEffect(() => {
-        localStorage.setItem('todo', JSON.stringify(todos));
-        filterTodos();
-      }, [todos, search, filtertype]);
-    
-      
+
+  useEffect(() => {
+    localStorage.setItem('todo', JSON.stringify(todos));}, [todos]
+  );
 
   const handleDelete =(index)=>{
     const updateTodo = todos.filter((_,i) =>i !==index)
@@ -71,10 +57,6 @@ function Todos() {
     setSearch(e.target.value)
   }
 
-  const handleFilterChange =(filter)=>{
-    setFiltertype(filter)
-    console.log('filter :>> ', filter);
-  }
 
   return (
     <>
@@ -119,31 +101,16 @@ function Todos() {
         </form>
       </div>
 
- <div className="filter-buttons">
-        <button className='todo-button' onClick={() => handleFilterChange('all')}>
-          All Todos
-        </button>
-        <button className='todo-button' onClick={() => handleFilterChange('pending')}>
-          Pending Todos
-        </button>
-        <button className='todo-button' onClick={() => handleFilterChange('completed')}>
-          Completed Todos
-        </button>
-      </div>
-  <table className="table table-striped">
+
+      <table className="table table-striped">
   <thead>
     <tr>
       <th scope="col">Sr.No</th>
-      <th scope="col">Title:  <input
-                type="text"
-                value={search}
-                onChange={handleSearch}
-                placeholder="Search by title"
-                /></th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Action</th>
-                  </tr>
+      <th scope="col">Title</th>
+      <th scope="col">Description</th>
+      <th scope="col">Date</th>
+      <th scope="col">Action</th>
+    </tr>
   </thead>
   <tbody>
     {filteredTodos.map((item, index) => (
