@@ -79,7 +79,7 @@ function Todos() {
   return (
     <>
       <div className="todo-container">
-        <h2 className="todo-heading">To-Do</h2>
+        <h2 className="todo-heading">To-Dos Web App</h2>
         <form className="todo-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="todo-title">Title:</label>
